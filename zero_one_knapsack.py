@@ -45,7 +45,35 @@ class Solver:
                         items_so_far_next_level, items_remaining_next_level)
 
 
-def solve_same_values(weights_list, weight_limit):
+def solve_dynamic_prog(weights, profits, weight_limit):
+    current_best_knapsacks = [None] * (weight_limit + 1)
+    current_best_profits = [0] * (weight_limit + 1)
+    # Iterate through each item.
+    for item_idx, item_weight in enumerate(weights):
+        profit = profits[item_idx]
+        new_best_knapsacks = current_best_knapsacks[:item_weight]
+        new_best_profits = current_best_profits[:item_weight]
+        # Iterate through each smaller knapsack weight.
+        for knapsack_weight in range(item_weight, weight_limit + 1):
+            new_profit_with_item = current_best_profits[knapsack_weight - item_weight] + profit
+            current_profit_without_item = current_best_profits[knapsack_weight]
+            if new_profit_with_item > current_profit_without_item:
+                try:
+                    current_knapsack = current_best_knapsacks[knapsack_weight -
+                                                            item_weight][:]
+                    current_knapsack.append(item_idx)
+                    new_best_knapsacks.append(current_knapsack)
+                except:
+                    new_best_knapsacks.append([item_idx])
+                new_best_profits.append(new_profit_with_item)
+            else:
+                new_best_knapsacks.append(current_best_knapsacks[knapsack_weight])
+                new_best_profits.append(current_profit_without_item)
+        current_best_knapsacks = new_best_knapsacks
+        current_best_profits = new_best_profits
+    return current_best_knapsacks[-1]
+
+def solve_bandb_same_values(weights_list, weight_limit):
     """Every item in the list has the same value per weight unit."""
     items_set = [WeightProfitTuple(weight=w, profit=w) for w in weights_list]
     solver = Solver(items_set, weight_limit)
@@ -53,170 +81,3 @@ def solve_same_values(weights_list, weight_limit):
     solver.solve_branch_and_bound()
     return [item.weight for item in solver.solution]
 
-
-################
-#  Unit tests  #
-################
-
-import unittest
-class TestZeroOneKnapsack(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        #cls.rows = read_csv()
-        pass
-
-    def setUp(self):
-        self.ex357_equ_wt_candts = [WeightProfitTuple(3,3),
-                                    WeightProfitTuple(5,5),
-                                    WeightProfitTuple(7,7)]
-
-    def test_Solver(self):
-        assert Solver(self.ex357_equ_wt_candts, 10) is not None
-
-    def test_Solver_solution_ex357_10(self):
-        solver = Solver(self.ex357_equ_wt_candts, 10)
-        solver.solve_branch_and_bound()
-        expected = set([WeightProfitTuple(3,3), WeightProfitTuple(7,7)])
-        actual = set(solver.solution)
-        #actual = set(solver._current_best_solution)
-        self.assertEqual(expected, actual)
-
-    def test_Solver_empty_solution(self):
-        solver = Solver(self.ex357_equ_wt_candts, 2)
-        solver.solve_branch_and_bound()
-        expected = []
-        actual = solver.solution
-        self.assertEqual(expected, actual)
-
-    def test_Solver_branch_10_1(self):
-        solver = Solver(self.ex357_equ_wt_candts, 10)
-        solver._current_best_solution = [WeightProfitTuple(3,3),
-                                        WeightProfitTuple(5,5)]
-        total_weight_so_far = 8
-        total_profit_so_far = 8
-        items_so_far = [WeightProfitTuple(3,3),
-                        WeightProfitTuple(5,5)]
-        remaining_candidates = [WeightProfitTuple(7,7)]
-        solver.branch(total_weight_so_far, total_profit_so_far, items_so_far,
-                      remaining_candidates)
-        # The current best solution should not have been updated.
-        expected = set([WeightProfitTuple(3,3), WeightProfitTuple(5,5)])
-        actual = set(solver._current_best_solution)
-        self.assertEqual(expected, actual)
-
-    def test_Solver_branch_10_2(self):
-        solver = Solver(self.ex357_equ_wt_candts, 10)
-        solver._current_best_solution = [WeightProfitTuple(3,3),
-                                        WeightProfitTuple(7,7)]
-        total_weight_so_far = 10
-        total_profit_so_far = 10
-        items_so_far = [WeightProfitTuple(3,3),
-                        WeightProfitTuple(7,7)]
-        remaining_candidates = [WeightProfitTuple(5,5)]
-        solver.branch(total_weight_so_far, total_profit_so_far, items_so_far,
-                      remaining_candidates)
-        # The current best solution should not have been updated.
-        expected = set([WeightProfitTuple(3,3), WeightProfitTuple(7,7)])
-        actual = set(solver._current_best_solution)
-        self.assertEqual(expected, actual)
-
-    def test_Solver_branch_10_3(self):
-        solver = Solver(self.ex357_equ_wt_candts, 10)
-        solver._current_best_solution = [WeightProfitTuple(7,7)]
-        total_weight_so_far = 10
-        total_profit_so_far = 10
-        items_so_far = [WeightProfitTuple(7,7)]
-        remaining_candidates = [WeightProfitTuple(5,5)]
-        solver.branch(total_weight_so_far, total_profit_so_far, items_so_far,
-                      remaining_candidates)
-        # The current best solution should not have been updated.
-        expected = set([WeightProfitTuple(7,7)])
-        actual = set(solver._current_best_solution)
-        self.assertEqual(expected, actual)
-
-    def test_Solver_branch_10_4(self):
-        solver = Solver(self.ex357_equ_wt_candts, 10)
-        solver._current_best_solution = [WeightProfitTuple(3,3)]
-        total_weight_so_far = 3
-        total_profit_so_far = 3
-        items_so_far = [WeightProfitTuple(3,3)]
-        remaining_candidates = [WeightProfitTuple(7,7)]
-        solver.branch(total_weight_so_far, total_profit_so_far, items_so_far,
-                      remaining_candidates)
-        # The current best solution should not have been updated.
-        expected = set([WeightProfitTuple(3,3), WeightProfitTuple(7,7)])
-        actual = set(solver._current_best_solution)
-        self.assertEqual(expected, actual)
-
-    def test_Solver_branch_10_5(self):
-        solver = Solver(self.ex357_equ_wt_candts, 10)
-        solver._current_best_solution = [WeightProfitTuple(7,7)]
-        total_weight_so_far = 10
-        total_profit_so_far = 10
-        items_so_far = [WeightProfitTuple(7,7)]
-        remaining_candidates = [WeightProfitTuple(5,5)]
-        solver.branch(total_weight_so_far, total_profit_so_far, items_so_far,
-                      remaining_candidates)
-        # The current best solution should not have been updated.
-        expected = set([WeightProfitTuple(7,7)])
-        actual = set(solver._current_best_solution)
-        self.assertEqual(expected, actual)
-
-    def test_Solver_branch_11(self):
-        new_candidates = [WeightProfitTuple(5,5),
-                          WeightProfitTuple(3,3),
-                          WeightProfitTuple(7,7)]
-        solver = Solver(new_candidates, 11)
-        solver.solve_branch_and_bound()
-        # The current best solution should have been updated.
-        expected = set([WeightProfitTuple(3,3),
-                        WeightProfitTuple(7,7)])
-        actual = set(solver._current_best_solution)
-        self.assertEqual(expected, actual)
-
-    def test_Solver_branch_15_1(self):
-        solver = Solver(self.ex357_equ_wt_candts, 15)
-        solver._current_best_solution = [WeightProfitTuple(3,3),
-                                        WeightProfitTuple(5,5)]
-        total_weight_so_far = 8
-        total_profit_so_far = 8
-        items_so_far = [WeightProfitTuple(3,3),
-                  WeightProfitTuple(5,5)]
-        remaining_candidates = [WeightProfitTuple(7,7)]
-        solver.branch(total_weight_so_far, total_profit_so_far, items_so_far,
-                      remaining_candidates)
-        # The current best solution should have been updated.
-        expected = set([WeightProfitTuple(3,3), WeightProfitTuple(5,5),
-                        WeightProfitTuple(7,7)])
-        actual = set(solver._current_best_solution)
-        self.assertEqual(expected, actual)
-
-    def test_Solver_branch_13(self):
-        new_candidates = [WeightProfitTuple(5,5),
-                          WeightProfitTuple(3,3),
-                          WeightProfitTuple(7,7)]
-        solver = Solver(new_candidates, 13)
-        solver.solve_branch_and_bound()
-        # The current best solution should have been updated.
-        expected = set([WeightProfitTuple(5,5),
-                        WeightProfitTuple(7,7)])
-        actual = set(solver._current_best_solution)
-        self.assertEqual(expected, actual)
-
-    def test_Solver_branch_13_1(self):
-        solver = Solver(self.ex357_equ_wt_candts, 13)
-        solver._current_best_solution = [WeightProfitTuple(7,7),
-                                        WeightProfitTuple(3,3)]
-        total_weight_so_far = 10
-        total_profit_so_far = 10
-        items_so_far = [WeightProfitTuple(3,3),
-                  WeightProfitTuple(7,7)]
-        remaining_candidates = [WeightProfitTuple(5,5)]
-        solver.branch(total_weight_so_far, total_profit_so_far, items_so_far,
-                      remaining_candidates)
-        # The current best solution should not have been updated.
-        expected = set([WeightProfitTuple(3,3),
-                        WeightProfitTuple(7,7)])
-        actual = set(solver._current_best_solution)
-        self.assertEqual(expected, actual)
