@@ -24,6 +24,7 @@
   usage for these lists will be huge.
 * Verbose output includes the number of candidate files and the left-over unused
   space.
+
 # Example
 
     python maxfit.py *.m4v *.mov
