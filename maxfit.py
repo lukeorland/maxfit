@@ -52,8 +52,8 @@ def main():
 
     # Optional flags
     # --limit limit  # number of MB to fit
-    # default: limit = 5 GB
-    parser.add_argument('--limit', default=5E9, type=int,
+    # default: limit = 5 GiB
+    parser.add_argument('--limit', default=5368709120, type=int,
                         help='number of bytes limit in which to find max fit')
 
     parser.add_argument('--scaling_divisor', default=1e6, type=int,
