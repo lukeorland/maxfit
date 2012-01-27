@@ -27,4 +27,4 @@
 
 # Example
 
-    python maxfit.py *.m4v *.mov
+    python ${MAXFIT_SOURCE_DIR}/maxfit.py *.m4v *.mov
