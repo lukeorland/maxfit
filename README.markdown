@@ -1,19 +1,21 @@
     usage: maxfit.py [-h] [--limit LIMIT] [--scaling_divisor SCALING_DIVISOR]
                      [--verbose]
                      [file_names [file_names ...]]
-
+    
     Prints the files that comprise the best fit within the size limit.
-
+    
     positional arguments:
-      file_names            files that are candidates for fitting
-
+      file_names            Files that are candidates for fitting.
+    
     optional arguments:
       -h, --help            show this help message and exit
-      --limit LIMIT         number of bytes limit in which to find max fit
+      --limit LIMIT         The number of bytes limit in which to find the maximum
+                            fit. The default value is 5368709120 (5 GiB).
       --scaling_divisor SCALING_DIVISOR
-                            reduce the complexity of the computation by dividing
-                            the limit by scale_divisor integer value.
-      --verbose, -v         report extra info
+                            Reduce the complexity of the computation by dividing
+                            the limit by scale_divisor integer value. The default
+                            value is 1000000.
+      --verbose, -v         Report extra info.
 
 # Notes
 * Be careful when adjusting the values of `LIMIT` and `SCALING_DIVISOR`. At
@@ -22,3 +24,6 @@
   usage for these lists will be huge.
 * Verbose output includes the number of candidate files and the left-over unused
   space.
+# Example
+
+    python maxfit.py *.m4v *.mov

@@ -54,20 +54,22 @@ def main():
     # --limit limit  # number of MB to fit
     # default: limit = 5 GiB
     parser.add_argument('--limit', default=5368709120, type=int,
-                        help='number of bytes limit in which to find max fit')
+                        help='The number of bytes limit in which to find the ' +
+                        'maximum fit. The default value is 5368709120 (5 GiB).')  
 
     parser.add_argument('--scaling_divisor', default=1e6, type=int,
-                        help='reduce the complexity of the computation by ' +
-                        'dividing the limit by scale_divisor integer value.')
+                        help='Reduce the complexity of the computation by ' +
+                        'dividing the limit by scale_divisor integer value. ' +
+                        'The default value is 1000000.')
 
     # Any arguments are interpreted as files that are candidates for fitting
     # If list of files not passed, get list of all the video files in this
     # directory.
     parser.add_argument('file_names', nargs='*',
-                        help='files that are candidates for fitting')
+                        help='Files that are candidates for fitting.')
 
     parser.add_argument('--verbose', '-v', action='count',
-                        help='report extra info')
+                        help='Report extra info.')
 
     args = parser.parse_args()
     limit = args.limit
