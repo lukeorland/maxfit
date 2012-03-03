@@ -4,9 +4,17 @@ from __future__ import print_function, division
 import argparse
 import math
 import os
+import sys
 import zero_one_knapsack
 
 scale = 1e6
+
+class MyParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help()
+        sys.exit(2)
+
 
 def file_size(file_name):
     """Returns size of the file named file_name in bytes."""
@@ -46,9 +54,9 @@ def report(msg, verbose):
 def main():
 
     # Parse the command line arguments.
-    parser = argparse.ArgumentParser(description='Prints the files that ' +
-                                     'comprise the best fit within the size ' +
-                                     'limit.')
+    parser = MyParser(description='Prints the files that ' +
+                                  'comprise the best fit within the size ' +
+                                  'limit.')
 
     # Optional flags
     # --limit limit  # number of MB to fit
@@ -65,7 +73,7 @@ def main():
     # Any arguments are interpreted as files that are candidates for fitting
     # If list of files not passed, get list of all the video files in this
     # directory.
-    parser.add_argument('file_names', nargs='*',
+    parser.add_argument('file_names', nargs='+',
                         help='Files that are candidates for fitting.')
 
     parser.add_argument('--verbose', '-v', action='count',
